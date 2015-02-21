@@ -63,7 +63,7 @@ def add_beacon():
     if not(beacon_id and room_id and name and location):
         abort(400)
 
-    return Beacon()
+    return Beacon.create()
 
 
 if __name__ == '__main__':

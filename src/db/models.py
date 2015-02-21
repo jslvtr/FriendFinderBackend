@@ -105,7 +105,7 @@ class Room(FieldManagerMixin):
         return cls(data)
 
 
-class Beacon(FieldManagerMixin):
+class Beacon(ModelBase, FieldManagerMixin):
 
     collection = 'beacons'
 
@@ -126,6 +126,40 @@ class Beacon(FieldManagerMixin):
         }
 
         return cls(data)
+
+    @classmethod
+    def create(cls, beacon_id, room_id, name, location):
+        data = {'id': beacon_id,
+                'room_id': room_id,
+                'name': name,
+                'location': location}
+
+        return cls(data)
+
+    @classmethod
+    def get_by_id(cls, model_id):
+        query = {'id': model_id}
+        data = cls.db().find_one(query)
+
+        return cls(data) if data else None
+
+    @classmethod
+    def get_by_room_id(cls, room_id):
+        query = {'room_id': room_id}
+        data = cls.db().find_one(query)
+
+        return cls(data) if data else None
+
+    @classmethod
+    def remove(cls, user_id):
+        query = {'id': user_id}
+
+        cls.db().remove(query)
+
+    def save(self):
+        data = SON()
+        data.update(self._data)
+        self.db().insert(data)
 
 
 class Provider(ModelBase, FieldManagerMixin):
