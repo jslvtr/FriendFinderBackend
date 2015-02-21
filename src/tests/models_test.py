@@ -35,11 +35,7 @@ class ModelsTest(unittest.TestCase):
         self.assertEqual(twitter_dict['access_token'], self.stuart_twitter_access_token)
 
     def test_create_user(self):
-        user_dict = User.create(username="jslvtr",
-                                user_id="15685156",
-                                provider_name="Twitter",
-                                access_token=self.stuart_twitter_access_token,
-                                access_secret=self.stuart_twitter_access_secret).to_dict()
+        user_dict = self._sample_user().to_dict()
 
         self.assertEqual(user_dict['username'], "jslvtr")
         self.assertEqual(user_dict['id'], "15685156")
@@ -48,16 +44,32 @@ class ModelsTest(unittest.TestCase):
                                          self.stuart_twitter_access_secret).to_dict())
 
     def test_save_user(self):
+        user = self._sample_user()
+        with self.app_context:
+            user.save()
+            User.remove(user.id)
+
+    def test_find_twitter_user(self):
+        user = self._sample_user()
+        with self.app_context:
+            user.save()
+            self.assertEqual(User.get_by_provider("Twitter", self.stuart_twitter_access_token).id,
+                             self._sample_user().id)
+            self.assertEqual(User.get_by_provider("Twitter", self.stuart_twitter_access_token).username,
+                             self._sample_user().username)
+            self.assertEqual(User.get_by_provider("Twitter", self.stuart_twitter_access_token).email,
+                             self._sample_user().email)
+            self.assertEqual(User.get_by_provider("Twitter", self.stuart_twitter_access_token).providers,
+                             self._sample_user().providers)
+            User.remove(user.id)
+
+    def _sample_user(self):
         user = User.create(username="jslvtr",
                            user_id="15685156",
                            provider_name="Twitter",
                            access_token=self.stuart_twitter_access_token,
                            access_secret=self.stuart_twitter_access_secret)
-        with self.app_context:
-            user.save()
-
-    def test_find_user(self):
-        pass
+        return user
 
 if __name__ == '__main__':
     unittest.main()

@@ -16,6 +16,12 @@ class Database(object):
         else:
             raise pymongo.errors.InvalidOperation
 
+    def remove(self, data):
+        if self.collection is not None:
+            self.collection.remove(data)
+        else:
+            raise pymongo.errors.InvalidOperation
+
     def update(self, query, data):
         if self.collection is not None:
             self.collection.update(query, data)

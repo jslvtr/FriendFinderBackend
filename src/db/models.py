@@ -205,14 +205,23 @@ class User(ModelBase, FieldManagerMixin):
         return cls(data) if data else None
 
     @classmethod
-    def create(cls, username, user_id, provider_name, access_token, access_secret):
-        data = {'id': user_id,
+    def create(cls, username, provider_name, access_token, access_secret, user_id=None, email=None):
+        data = {'id': user_id if user_id is not None else cls.generate_id(),
                 'providers': [Provider.create(provider_name, access_token, access_secret).to_dict()],
                 'access_token': cls.generate_access_token(),
                 'joined_date': datetime.utcnow(),
-                'username': username}
+                'username': username,
+                'email': email}
 
         return cls(data)
+
+    @classmethod
+    def get_by_provider(cls, provider, access_token):
+        query = {'providers.name': provider,
+                 'providers.access_token': access_token}
+        data = cls.db().find_one(query)
+
+        return cls(data) if data else None
 
     @classmethod
     def register(cls, email, password):
@@ -249,3 +258,9 @@ class User(ModelBase, FieldManagerMixin):
         data = SON()
         data.update(self._data)
         self.db().insert(data)
+
+    @classmethod
+    def remove(cls, user_id):
+        query = {'id': user_id}
+
+        cls.db().remove(query)
