@@ -67,4 +67,4 @@ def add_beacon():
 
 
 if __name__ == '__main__':
-    app.run(port=9876)
+    app.run()
