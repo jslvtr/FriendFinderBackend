@@ -6,6 +6,11 @@ import datetime
 app = Flask(__name__,)
 
 
+def log(to_write):
+    print("{} {}".format(datetime.datetime.now().strftime("%b %d %H:%M:%S"),
+                         to_write))
+
+
 @app.before_request
 def init_db():
     g.database = Database('mongodb://admin:admin@ds063879.mongolab.com:63879/heroku_app34205970')
@@ -19,7 +24,7 @@ def hello():
 @app.route('/login/twitter', methods=['POST'])
 def login_twitter():
 
-    print("{} Logging in with Twitter.".format(datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")))
+    log("Logging in with Twitter.")
 
     username = request.json.get('username')
     user_id = request.json.get('user_id')
@@ -27,14 +32,13 @@ def login_twitter():
     access_token = request.json.get('access_token')
     access_secret = request.json.get('access_secret')
 
-    print("{} Twitter username: {}\nID: {}.".format(datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S"),
-                                                     username,
-                                                     user_id))
+    log("Twitter username: {}\nID: {}.".format(username,
+                                               user_id))
 
     user = User.create(username, provider_name, access_token, access_secret, user_id=user_id)
-    print("{} Created Twitter user.".format(datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")))
+    log("Created Twitter user.")
     user.save()
-    print("{} Saved Twitter user to database.".format(datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")))
+    log("Saved Twitter user to database.")
 
 
 @app.route('/login/facebook', methods=['POST'])
