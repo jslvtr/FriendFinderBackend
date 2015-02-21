@@ -10,4 +10,3 @@ requests-oauthlib==0.4.2
 wsgiref==0.1.2
 setuptools==3.6
 pymongo
-Pillow==2.7.0
