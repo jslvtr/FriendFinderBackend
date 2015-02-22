@@ -171,6 +171,12 @@ class Group(ModelBase, FieldManagerMixin):
             raise cls.CalledEmptyUpdate
         cls.db().update({'id': group_id}, {'$addToSet': {'users': new_user_id}})
 
+    @classmethod
+    def remove_member(cls, group_id, user_id):
+        if group_id is None or user_id is None:
+            raise cls.CalledEmptyUpdate
+        cls.db().update({'id': group_id}, {'$pull': {'users': user_id}})
+
 
 class Provider(ModelBase, FieldManagerMixin):
 

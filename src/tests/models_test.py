@@ -172,7 +172,8 @@ class ModelsTest(unittest.TestCase):
             user = User.get_by_email(invite.email)
             self.assertIsNotNone(user)
             self.assertEqual(user.email, invite.email)
-            User.remove(invite.email)
+            User.remove(user.id)
+            Group.remove_member(invite.inviter_id, user.id)
 
 
 if __name__ == '__main__':
