@@ -293,7 +293,7 @@ def add_member_to_group(group_id):
     except Exception:
         log("Didn't receive a User ID to add, so trying to use e-mail instead...")
 
-    if user_id is None:
+    if user_id is None or user_id == "":
         user_email = request.json.get('email')
         if user_email is None:
             response_data = create_response_error(
