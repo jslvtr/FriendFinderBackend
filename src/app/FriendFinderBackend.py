@@ -55,11 +55,11 @@ def login_required(f):
 def check_authorization(authorization):
     if authorization is not None:
         try:
-            battlehack, access_key = authorization.split(' ')
+            ffinder, access_key = authorization.split(' ')
         except ValueError:
             return False
 
-        if battlehack != 'BATTLEHACK':
+        if ffinder != 'FFINDER':
             return False
 
         try:
