@@ -10,6 +10,10 @@ from flask import g
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson.binary import Binary
 
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 
 def email_is_valid(email):
     address = re.compile('^[\w\d.+-]+@([\w\d.]+\.)+[\w]+$')
@@ -304,3 +308,94 @@ class User(ModelBase, FieldManagerMixin):
         query = {'id': user_id}
 
         cls.db().remove(query)
+
+class Invite(ModelBase, FieldManagerMixin):
+    collection = 'invites'
+    fields = [
+        Field('email'),
+        Field('token'),
+        Field('created_date'),
+        Field('pending')
+    ]
+
+    @staticmethod
+    def generate_access_token():
+        random_bytes = [chr(random.randrange(256)) for i in range(16)]
+        random_bytes = "".join(random_bytes)
+        return sha1(random_bytes).hexdigest()
+
+    @classmethod
+    def create(cls, email):
+        data = {'email': email,
+                'token': cls.generate_access_token(),
+                'created_date': datetime.utcnow(),
+                'pending': True
+        }
+
+        return cls(data)
+
+    def save(self):
+        data = SON()
+        data.update(self._data)
+        self.db().insert(data)
+
+    @classmethod
+    def get_by_email(cls, model_email):
+        query = {'email': model_email}
+        data = cls.db().find_one(query)
+
+        return cls(data) if data else None
+
+    @classmethod
+    def get_by_token(cls, model_token):
+        query = {'token': model_token}
+        data = cls.db().find_one(query)
+
+        return cls(data) if data else None
+
+    @classmethod
+    def mark_complete(cls, model_email):
+        if model_email is not None:
+            cls.db().update({'email': model_email}, {'$set': {'pending': False}})
+
+    def send(self):
+        smtp_user = "jslvtr@gmail.com"
+        smtp_server = "localhost"
+        smtp_port = 25
+        receiver = self.email
+
+        msg = MIMEMultipart('alternative')
+
+        msg['From'] = smtp_user
+        msg['To'] = self.email
+        msg['Subject'] = "You've been invited to FriendFinder!"
+
+        message = "Please register your account <a href=\"http://friend-finder-beacons.herokuapp.com/confirm/" + self.token + "\">here</a>.<br/>"
+        message += "If you can't see this link please go to {}".format("http://friend-finder-beacons.herokuapp.com/confirm/" + self.token)
+
+        try:
+            # Create SMTP object
+            smtpObj = smtplib.SMTP(smtp_server, smtp_port)
+
+            # Send EHLO or HELO greeting so server recognizes us
+            smtpObj.ehlo_or_helo_if_needed()
+            msg.attach(MIMEText(message, 'html'))
+
+            # Log-in to the server with the config sender/password
+            # smtpObj.login(sender, smtp_password)
+
+            # Send e-mail to receivers.
+            smtpObj.sendmail(smtp_user, receiver, msg.as_string())
+
+            smtpObj.quit()
+            print "Successfully sent email"
+        except smtplib.SMTPException:
+            print "Error: unable to send email"
+
+    @classmethod
+    def activate(cls, token, password):
+        email = cls.get_by_token(token).email
+        user = User.register(email, password)
+        user.save()
+
+        Invite.mark_complete(email)

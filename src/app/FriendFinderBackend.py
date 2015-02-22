@@ -1,6 +1,6 @@
 from functools import wraps
-from flask import Flask, request, abort, g, jsonify
-from src.db.models import Group, User, email_is_valid
+from flask import Flask, request, abort, g, jsonify, render_template
+from src.db.models import Group, User, email_is_valid, Invite
 from src.db.database import Database
 from flask.ext.cors import CORS, cross_origin
 import datetime
@@ -294,8 +294,12 @@ def add_member_to_group(group_id):
 
     if user_email != "" and user_email is not None and email_is_valid(user_email):
             user = User.get_by_email(user_email)
-            log("Email: Adding {} to group {}".format(user_email, group_id))
-            Group.add_member(group_id, user.id)
+            if user is not None:
+                log("Email: Adding {} to group {}".format(user_email, group_id))
+                Group.add_member(group_id, user.id)
+            else:
+                invite = Invite.create(user_email)
+                invite.send()
     else:
         if user_id != "" and user_id is not None:
             log("ID: Adding {} to group {}".format(user_id, group_id))
@@ -333,6 +337,21 @@ def create_group():
         200
     )
     return jsonify(response_data), response_data['status_code']
+
+
+@app.route('/confirm/<email>/<token>')
+@cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
+def confirm(email, token):
+    return render_template("invite.html",
+                           email=email,
+                           token=token)
+
+
+@app.route('/activate/<token>', methods=['POST'])
+@cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
+def activate_invite(token):
+    password = request.form['password']
+    Invite.activate(token, password)
 
 if __name__ == '__main__':
     app.run()

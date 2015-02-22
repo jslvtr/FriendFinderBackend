@@ -5,11 +5,11 @@ from werkzeug.security import check_password_hash
 __author__ = 'jslvtr'
 
 import unittest
-from src.db.models import email_is_valid, Provider, User, Group
+from src.db.models import email_is_valid, Provider, User, Group, Invite
 from src.app.FriendFinderBackend import app, init_db
 
-class ModelsTest(unittest.TestCase):
 
+class ModelsTest(unittest.TestCase):
     def setUp(self):
         self.stuart_twitter_access_token = "GTvMXibcnUYoMDnD2MTaRD5xp"
         self.stuart_twitter_access_secret = "16DaykgV8kMWGr5WOBhUd0u1l4cpVvfP7ttnY9Qu2XC4trFZkJ"
@@ -78,8 +78,8 @@ class ModelsTest(unittest.TestCase):
         pass
 
     # def test_find_twitter_user(self):
-    #     user = self._sample_user()
-    #     with self.app_context:
+    # user = self._sample_user()
+    # with self.app_context:
     #         user.save()
     #         self.assertEqual(User.get_by_provider("Twitter", self.stuart_twitter_access_token).id,
     #                          self._sample_user().id)
@@ -133,7 +133,6 @@ class ModelsTest(unittest.TestCase):
         group = self._sample_group(user)
 
         with self.app_context:
-
             Group.remove(group.id)
             User.remove(user.id)
 
@@ -152,6 +151,25 @@ class ModelsTest(unittest.TestCase):
 
             Group.remove(group.id)
             User.remove(user.id)
+
+    def test_create_email_invite(self):
+        invite = Invite.create("thahoze@gmail.com")
+
+        self.assertEqual(invite.email, "thahoze@gmail.com")
+        self.assertIsNotNone(invite.token)
+        self.assertIsNotNone(invite.created_date)
+        self.assertTrue(invite.pending)
+
+    def test_activate_email_invite(self):
+        invite = Invite.create("thahoze@gmail.com")
+
+        with self.app_context:
+            invite.save()
+            Invite.activate(invite.token, "pass")
+            user = User.get_by_email(invite.email)
+            self.assertIsNotNone(user)
+            self.assertEqual(user.email, invite.email)
+            User.remove(invite.email)
 
 
 if __name__ == '__main__':
