@@ -235,7 +235,6 @@ def login_facebook():
 
 
 @app.route('/users/location', methods=['POST'])
-@login_required
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
 def update_user_location():
     lat = request.json.get('lat')
@@ -246,7 +245,6 @@ def update_user_location():
 
 
 @app.route('/groups/<group_id>/locations')
-@login_required
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
 def get_friend_locations(group_id):
     group = Group.get_by_id(group_id)
