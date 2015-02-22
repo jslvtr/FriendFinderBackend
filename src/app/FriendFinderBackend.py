@@ -374,7 +374,7 @@ def confirm(token):
         loggerObject.error(path + " | " + os.path.join(path, '../../templates/'))
         loggerObject.error(type)
         loggerObject.error(ex.message)
-        loggerObject.error(trace.print_stack())
+        trace.print_stack(file=sys.stdout)
         response_data = create_response_error(
             "InternalServerError",
             "The server could not display the template",
