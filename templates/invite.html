@@ -7,6 +7,7 @@
 <body>
 
 <h1>Activate your email, {{ email }}</h1>
+<p>You've been invited by {{ inviter_email }}</p>
 
 <form action="/activate/{{ token }}" method="post">
     <label for="password">Password:</label><input id="password" name="pass" type="password">

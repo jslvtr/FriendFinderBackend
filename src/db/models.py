@@ -313,6 +313,7 @@ class Invite(ModelBase, FieldManagerMixin):
     collection = 'invites'
     fields = [
         Field('email'),
+        Field('inviter_id'),
         Field('token'),
         Field('created_date'),
         Field('pending')
@@ -325,8 +326,9 @@ class Invite(ModelBase, FieldManagerMixin):
         return sha1(random_bytes).hexdigest()
 
     @classmethod
-    def create(cls, email):
+    def create(cls, email, inviter_id):
         data = {'email': email,
+                'inviter_id': inviter_id,
                 'token': cls.generate_access_token(),
                 'created_date': datetime.utcnow(),
                 'pending': True
@@ -399,8 +401,10 @@ class Invite(ModelBase, FieldManagerMixin):
 
     @classmethod
     def activate(cls, token, password):
-        email = cls.get_by_token(token).email
+        invite = cls.get_by_token(token)
+        email = invite.email
         user = User.register(email, password)
         user.save()
+        Group.add_member(invite.inviter_id, user.id)
 
         Invite.mark_complete(email)

@@ -307,7 +307,7 @@ def add_member_to_group(group_id):
                 log("Email: Adding {} to group {}".format(user_email, group_id))
                 Group.add_member(group_id, user.id)
             else:
-                invite = Invite.create(user_email)
+                invite = Invite.create(user_email, g.user.id)
                 invite.save()
                 invite.send()
     else:
@@ -351,11 +351,13 @@ def create_group():
 
 @app.route('/confirm/<token>')
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
-def confirm(token):
-    email = Invite.get_by_token(token).email
+def confirm(inviter_id, token):
+    invite = Invite.get_by_token(token)
+    inviter = User.get_by_id(invite.inviter_id)
     return render_template("invite.html",
-                           email=email,
-                           token=token)
+                           email=invite.email,
+                           token=token,
+                           inviter_email=inviter.email)
 
 
 @app.route('/activate/<token>', methods=['POST'])

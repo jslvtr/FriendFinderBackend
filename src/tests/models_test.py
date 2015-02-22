@@ -153,15 +153,18 @@ class ModelsTest(unittest.TestCase):
             User.remove(user.id)
 
     def test_create_email_invite(self):
-        invite = Invite.create("thahoze@gmail.com")
+        inviter = self._sample_user()
+        invite = Invite.create("thahoze@gmail.com", inviter.id)
 
         self.assertEqual(invite.email, "thahoze@gmail.com")
+        self.assertEqual(invite.inviter_id, inviter.id)
         self.assertIsNotNone(invite.token)
         self.assertIsNotNone(invite.created_date)
         self.assertTrue(invite.pending)
 
     def test_activate_email_invite(self):
-        invite = Invite.create("thahoze@gmail.com")
+        inviter = self._sample_user()
+        invite = Invite.create("thahoze@gmail.com", inviter.id)
 
         with self.app_context:
             invite.save()
