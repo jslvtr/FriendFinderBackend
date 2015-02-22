@@ -273,7 +273,7 @@ def update_user_location():
     return jsonify(response_data), response_data['status_code']
 
 
-@app.route('/groups/<group_id>/locations')
+@app.route('/groups/<group_id>/locations', methods=['GET'])
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
 @login_required
 def get_friend_locations(group_id):
@@ -349,7 +349,7 @@ def create_group():
     return jsonify(response_data), response_data['status_code']
 
 
-@app.route('/confirm/<token>')
+@app.route('/confirm/<token>', methods=['GET'])
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
 def confirm(token):
     invite = Invite.get_by_token(token)
@@ -359,7 +359,7 @@ def confirm(token):
     return render_template("invite.html",
                            email=invite.email,
                            token=token,
-                           inviter_email=inviter.email)
+                           inviter_email=inviter.email), 200
 
 
 @app.route('/activate/<token>', methods=['POST'])
@@ -367,6 +367,12 @@ def confirm(token):
 def activate_invite(token):
     password = request.form['password']
     Invite.activate(token, password)
+
+    response_data = create_response_data(
+        "Success!",
+        200
+    )
+    return jsonify(response_data), response_data['status_code']
 
 if __name__ == '__main__':
     app.run()
