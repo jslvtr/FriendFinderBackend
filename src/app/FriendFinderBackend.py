@@ -247,7 +247,6 @@ def update_user_location():
 
 @app.route('/groups/<group_id>/locations')
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
-@login_required
 def get_friend_locations(group_id):
     group = Group.get_by_id(group_id)
 
