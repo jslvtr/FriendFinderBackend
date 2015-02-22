@@ -236,6 +236,7 @@ def login_facebook():
 
 @app.route('/users/location', methods=['POST'])
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
+@login_required
 def update_user_location():
     print("In update_user_location method")
     lat = request.json.get('lat')

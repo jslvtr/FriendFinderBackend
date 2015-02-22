@@ -1,1 +1,1 @@
-web: gunicorn src.app.FriendFinderBackend:app --log-file=-
+web: gunicorn --log-file=- src.app.FriendFinderBackend:app
