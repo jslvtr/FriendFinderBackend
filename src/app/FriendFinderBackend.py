@@ -7,6 +7,13 @@ from flask.ext.cors import CORS, cross_origin
 import datetime
 import jinja2
 import os
+import logging
+
+# Defaults to stdout
+logging.basicConfig(level=logging.INFO)
+
+# get the logger for the current Python module
+loggerObject = logging.getLogger(__name__)
 
 app = Flask(__name__,)
 cors = CORS(app)
@@ -363,6 +370,8 @@ def confirm(token):
                                token=token,
                                inviter_email=inviter.email), 200
     except Exception:
+        _, ex, _ = sys.exc_info()
+        loggerObject.error(ex.message)
         response_data = create_response_error(
             "InternalServerError",
             "The server could not display the template",
@@ -384,4 +393,4 @@ def activate_invite(token):
     return jsonify(response_data), response_data['status_code']
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
