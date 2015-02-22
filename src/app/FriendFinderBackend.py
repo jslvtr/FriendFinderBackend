@@ -247,6 +247,12 @@ def update_user_location():
     User.update_location(user_id, lat, lon)
     print("Updated location")
 
+    response_data = create_response_data(
+        "Updated location",
+        200
+    )
+    return jsonify(response_data), response_data['status_code']
+
 
 @app.route('/groups/<group_id>/locations')
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
