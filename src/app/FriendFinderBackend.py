@@ -1,13 +1,22 @@
 from functools import wraps
+import sys
 from flask import Flask, request, abort, g, jsonify, render_template
 from src.db.models import Group, User, email_is_valid, Invite
 from src.db.database import Database
 from flask.ext.cors import CORS, cross_origin
 import datetime
+import jinja2
+import os
 
 app = Flask(__name__,)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = ['Content-Type', 'Authorization', 'Accept']
+path = os.path.dirname(os.path.abspath(sys.argv[0]))
+my_loader = jinja2.ChoiceLoader([
+    app.jinja_loader,
+    jinja2.FileSystemLoader(os.path.join(path, '../../templates/')),
+])
+app.jinja_loader = my_loader
 
 
 def log(to_write):
@@ -356,4 +365,4 @@ def activate_invite(token):
     Invite.activate(token, password)
 
 if __name__ == '__main__':
-    app.run(port=9876, debug=True)
+    app.run()
