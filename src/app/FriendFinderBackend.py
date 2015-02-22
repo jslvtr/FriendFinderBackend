@@ -296,7 +296,12 @@ def add_member_to_group(group_id):
     if user_id is None:
         user_email = request.json.get('email')
         if user_email is None:
-            raise Exception
+            response_data = create_response_error(
+                'InternalServerError',
+                'The server could not fulfill the request to add user',
+                500
+            )
+            return jsonify(response_data), response_data['status_code']
         else:
             user = User.get_by_email(user_email)
             Group.add_member(group.id, user.id)
