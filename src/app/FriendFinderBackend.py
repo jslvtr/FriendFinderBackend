@@ -21,7 +21,7 @@ app.config['CORS_HEADERS'] = ['Content-Type', 'Authorization', 'Accept']
 path = os.path.dirname(os.path.abspath(sys.argv[0]))
 my_loader = jinja2.ChoiceLoader([
     app.jinja_loader,
-    jinja2.FileSystemLoader(os.path.join(path, '../templates/')),
+    jinja2.FileSystemLoader(os.path.join(path, 'templates/')),
 ])
 app.jinja_loader = my_loader
 
@@ -370,8 +370,10 @@ def confirm(token):
                                token=token,
                                inviter_email=inviter.email), 200
     except Exception:
-        _, ex, _ = sys.exc_info()
+        type, ex, trace = sys.exc_info()
+        loggerObject.error(type)
         loggerObject.error(ex.message)
+        loggerObject.error(trace)
         response_data = create_response_error(
             "InternalServerError",
             "The server could not display the template",
