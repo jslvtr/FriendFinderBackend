@@ -237,6 +237,12 @@ def login_facebook():
     user = User.create(email, password)
     user.save()
 
+    response_data = create_response_data(
+        user.to_dict(),
+        200
+    )
+    return jsonify(response_data), response_data['status_code']
+
 
 @app.route('/users/location', methods=['POST'])
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
@@ -297,6 +303,12 @@ def add_member_to_group(group_id):
     else:
         Group.add_member(group.id, user_id)
 
+    response_data = create_response_data(
+        Group.get_by_id(group.id).to_dict(),
+        200
+    )
+    return jsonify(response_data), response_data['status_code']
+
 
 @app.route('/groups', methods=['POST'])
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
@@ -311,5 +323,11 @@ def create_group():
 
     group.save()
 
+    response_data = create_response_data(
+        group.to_dict(),
+        200
+    )
+    return jsonify(response_data), response_data['status_code']
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=9876, debug=True)
