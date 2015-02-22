@@ -373,7 +373,7 @@ def confirm(token):
     log("Invited by: {}".format(inviter.email))
 
     try:
-        return render_template('../../app/templates/invite.html'),
+        return render_template('../../app/templates/invite.html',
                                email=invite.email,
                                token=token,
                                inviter_email=inviter.email), 200
