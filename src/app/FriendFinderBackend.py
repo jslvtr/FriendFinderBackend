@@ -339,9 +339,10 @@ def create_group():
     return jsonify(response_data), response_data['status_code']
 
 
-@app.route('/confirm/<email>/<token>')
+@app.route('/confirm/<token>')
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
-def confirm(email, token):
+def confirm(token):
+    email = Invite.get_by_token(token).email
     return render_template("invite.html",
                            email=email,
                            token=token)
