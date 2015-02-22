@@ -286,7 +286,7 @@ def get_friend_locations(group_id):
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
 @login_required
 def add_member_to_group(group_id):
-    group = Group.get_by_id(group_id)
+    log("Adding member to group...")
     user_id = None
     try:
         user_id = request.json.get('user_id')
@@ -304,12 +304,14 @@ def add_member_to_group(group_id):
             return jsonify(response_data), response_data['status_code']
         else:
             user = User.get_by_email(user_email)
-            Group.add_member(group.id, user.id)
+            log("Adding {} to group {}".format(user_email, group_id))
+            Group.add_member(group_id, user.id)
     else:
-        Group.add_member(group.id, user_id)
+        log("Adding {} to group {}".format(user_id, group_id))
+        Group.add_member(group_id, user_id)
 
     response_data = create_response_data(
-        Group.get_by_id(group.id).to_dict(),
+        Group.get_by_id(group_id).to_dict(),
         200
     )
     return jsonify(response_data), response_data['status_code']
