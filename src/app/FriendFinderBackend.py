@@ -256,7 +256,11 @@ def get_friend_locations(group_id):
     for friend_id in group.users:
         ret.extend([User.get_by_id(friend_id).to_dict()])
 
-    return ret
+    response_data = create_response_data(
+        {'friends': ret},
+        200
+    )
+    return jsonify(response_data), response_data['status_code']
 
 
 @app.route('/groups/<group_id>/add', methods=['POST'])
