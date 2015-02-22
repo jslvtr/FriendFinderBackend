@@ -41,6 +41,21 @@ class ModelsTest(unittest.TestCase):
         self.assertEqual(user.email, "jslvtr@gmail.com")
         self.assertTrue(check_password_hash(user.password, "jose"))
 
+    def test_register_user(self):
+        with self.app_context:
+            user = User.register(email="paco@paco.com",
+                                 password="paco")
+
+            user.save()
+
+            user_test = User.get_by_id(user.id)
+            self.assertIsNotNone(user_test.access_token)
+            self.assertEqual(user.email, "paco@paco.com")
+            self.assertTrue(check_password_hash(user.password, "paco"))
+
+            User.remove(user.id)
+
+
     def test_save_user(self):
         user = self._sample_user()
         with self.app_context:

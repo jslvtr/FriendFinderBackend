@@ -236,7 +236,6 @@ class User(ModelBase, FieldManagerMixin):
         query = {'email': model_email}
         data = cls.db().find_one(query)
 
-        print("{}".format(query))
         return cls(data) if data else None
 
     @classmethod
@@ -249,18 +248,12 @@ class User(ModelBase, FieldManagerMixin):
     @classmethod
     def create(cls, email, password):
         data = {'id': cls.generate_id(),
-                'access_key': cls.generate_access_key(),
+                'access_token': cls.generate_access_token(),
                 'joined_date': datetime.utcnow(),
                 'email': email,
                 'password': generate_password_hash(password)}
 
         return cls(data)
-
-    @staticmethod
-    def generate_access_key():
-        random_bytes = [chr(random.randrange(256)) for i in range(16)]
-        random_bytes = "".join(random_bytes)
-        return sha1(random_bytes).hexdigest()
 
     @classmethod
     def get_by_provider(cls, provider, access_token):
