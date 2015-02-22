@@ -241,7 +241,7 @@ def update_user_location():
     lon = request.json.get('lon')
     user_id = g.user.id
 
-    User.update(user_id, lat, lon)
+    User.update_location(user_id, lat, lon)
 
 
 @app.route('/groups/<group_id>/locations')
