@@ -371,14 +371,15 @@ def confirm(token):
     log("Inviter ID: {}".format(invite.inviter_id))
     inviter = User.get_by_id(invite.inviter_id)
     log("Invited by: {}".format(inviter.email))
+
     try:
-        return render_template(os.path.join(path, '../../templates/invite.html'),
+        return render_template('../../app/templates/invite.html'),
                                email=invite.email,
                                token=token,
                                inviter_email=inviter.email), 200
     except Exception:
         type, ex, trace = sys.exc_info()
-        loggerObject.error(path + " | " + os.path.join(path, '../../templates/'))
+        loggerObject.error(path + " | " + os.path.join(path, '../../app/templates/'))
         loggerObject.error(type)
         loggerObject.error(ex.message)
         response_data = create_response_error(
