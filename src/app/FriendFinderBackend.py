@@ -354,7 +354,7 @@ def create_group():
 def confirm(token):
     log("Starting confirmation...")
     invite = Invite.get_by_token(token)
-    log("Invite ID: {}".format(invite.id))
+    log("Inviter ID: {}".format(invite.inviter_id))
     inviter = User.get_by_id(invite.inviter_id)
     log("Invited by: {}".format(inviter.email))
     return render_template("invite.html",
