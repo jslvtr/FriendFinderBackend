@@ -86,6 +86,7 @@ def create_response_error(error_name, error_message, status_code):
         'status_code': status_code
     }
 
+
 @app.route('/users/register', methods=['POST'])
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
 def register_user():
@@ -121,6 +122,7 @@ def register_user():
         return jsonify(response_data)
 
     user.save()
+    g.user = user
 
     # Create a Friends default group for the user
     # This group has the same id as the user id
@@ -168,6 +170,7 @@ def login_user():
         )
         return jsonify(response_data)
 
+    g.user = user
     response_data = create_response_data(
         user.to_dict(),
         200
@@ -224,6 +227,7 @@ def internal_server_error(e):
     )
     return jsonify(response_data), response_data['status_code']
 
+
 @app.route('/login/facebook', methods=['POST'])
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
 def login_facebook():
@@ -238,14 +242,14 @@ def login_facebook():
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
 @login_required
 def update_user_location():
-    print("In update_user_location method")
+    log("In update_user_location method")
     lat = request.json.get('lat')
     lon = request.json.get('lon')
     user_id = g.user.id
-    print("Got user details in update_user_location")
+    log("Got user details in update_user_location")
 
     User.update_location(user_id, lat, lon)
-    print("Updated location")
+    log("Updated location")
 
     response_data = create_response_data(
         "Updated location",
@@ -277,7 +281,11 @@ def get_friend_locations(group_id):
 @login_required
 def add_member_to_group(group_id):
     group = Group.get_by_id(group_id)
-    user_id = request.json.get('user_id')
+    user_id = None
+    try:
+        user_id = request.json.get('user_id')
+    except Exception:
+        log("Didn't receive a User ID to add, so trying to use e-mail instead...")
 
     if user_id is None:
         user_email = request.json.get('email')
@@ -288,6 +296,7 @@ def add_member_to_group(group_id):
             Group.add_member(group.id, user.id)
     else:
         Group.add_member(group.id, user_id)
+
 
 @app.route('/groups', methods=['POST'])
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
