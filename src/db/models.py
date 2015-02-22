@@ -105,34 +105,34 @@ class Room(FieldManagerMixin):
         return cls(data)
 
 
-class Beacon(ModelBase, FieldManagerMixin):
+class Group(ModelBase, FieldManagerMixin):
 
-    collection = 'beacons'
+    class CalledEmptyUpdate(Exception):
+        pass
+
+    collection = 'groups'
 
     fields = [
         Field('id'),
-        Field('room_id'),
-        Field('name'),
-        Field('location', default={'x': 0, 'y': 0, 'z': 0})
+        Field('users', default=[]),
+        Field('name')
     ]
 
     @classmethod
     def from_dict(cls, dictionary):
         data = {
             'id': dictionary['id'],
-            'room_id': dictionary['room_id'],
-            'name': dictionary['name'],
-            'location': dictionary['location']
+            'users': dictionary['users'],
+            'name': dictionary['name']
         }
 
         return cls(data)
 
     @classmethod
-    def create(cls, beacon_id, room_id, name, location):
-        data = {'id': beacon_id,
-                'room_id': room_id,
+    def create(cls, group_id, name, creator):
+        data = {'id': group_id,
                 'name': name,
-                'location': location}
+                'users': [creator]}
 
         return cls(data)
 
@@ -144,15 +144,15 @@ class Beacon(ModelBase, FieldManagerMixin):
         return cls(data) if data else None
 
     @classmethod
-    def get_by_room_id(cls, room_id):
-        query = {'room_id': room_id}
+    def get_by_user_id(cls, user_id):
+        query = {'users': {'$in': user_id}}
         data = cls.db().find_one(query)
 
         return cls(data) if data else None
 
     @classmethod
-    def remove(cls, user_id):
-        query = {'id': user_id}
+    def remove(cls, group_id):
+        query = {'id': group_id}
 
         cls.db().remove(query)
 
@@ -160,6 +160,12 @@ class Beacon(ModelBase, FieldManagerMixin):
         data = SON()
         data.update(self._data)
         self.db().insert(data)
+
+    @classmethod
+    def add_member(cls, group_id, new_user_id):
+        if group_id is None or new_user_id is None:
+            raise cls.CalledEmptyUpdate
+        cls.db().update({'id': group_id}, {'$addToSet': {'users': new_user_id}})
 
 
 class Provider(ModelBase, FieldManagerMixin):
@@ -207,6 +213,7 @@ class User(ModelBase, FieldManagerMixin):
         Field('providers', default=[]),
         Field('access_token'),
         Field('last_request'),
+        Field('location'),
         Field('joined_date')
     ]
 
@@ -239,13 +246,14 @@ class User(ModelBase, FieldManagerMixin):
         return cls(data) if data else None
 
     @classmethod
-    def create(cls, username, provider_name, access_token, access_secret, user_id=None, email=None):
+    def create(cls, username, provider_name, access_token, access_secret, user_id=None, email=None, location=None):
         data = {'id': user_id if user_id is not None else cls.generate_id(),
                 'providers': [Provider.create(provider_name, access_token, access_secret).to_dict()],
                 'access_token': cls.generate_access_token(),
                 'joined_date': datetime.utcnow(),
                 'username': username,
-                'email': email}
+                'email': email,
+                'location': location}
 
         return cls(data)
 
@@ -283,10 +291,10 @@ class User(ModelBase, FieldManagerMixin):
         raise cls.UserNotExists
 
     @classmethod
-    def update(cls, email, extra_data):
-        if extra_data is None:
+    def update_location(cls, user_id, lat, lon):
+        if lat is None or lon is None:
             raise cls.CalledEmptyUpdate
-        cls.db().update({'email': email}, {'$set': extra_data})
+        cls.db().update({'user_id': user_id}, {'$set': {'location': {'lat': lat, 'lon': lon}}})
 
     def save(self):
         data = SON()

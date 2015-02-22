@@ -4,7 +4,7 @@ from src.db.database import Database
 __author__ = 'jslvtr'
 
 import unittest
-from src.db.models import email_is_valid, Provider, User, Beacon
+from src.db.models import email_is_valid, Provider, User, Group
 from src.app.FriendFinderBackend import app, init_db
 
 class ModelsTest(unittest.TestCase):
@@ -71,25 +71,33 @@ class ModelsTest(unittest.TestCase):
                            access_secret=self.stuart_twitter_access_secret)
         return user
 
-    def _sample_beacon(self):
-        beacon = Beacon.create(beacon_id=1234,
-                               room_id=1567,
-                               name="Test beacon",
-                               location={"x": 15, "y": 67, "z": 1})
-        return beacon
+    def _sample_group(self):
+        group = Group.create(group_id="1234",
+                             creator=self._sample_user().id,
+                             name="Test group")
+        return group
 
-    def test_create_beacon(self):
-        beacon_dict = self._sample_beacon().to_dict()
+    def test_create_group(self):
+        group_dict = self._sample_group().to_dict()
 
-        self.assertEqual(beacon_dict['id'], 1234)
-        self.assertEqual(beacon_dict['room_id'], 1567)
-        self.assertEqual(beacon_dict['location']['x'], 15)
-        self.assertEqual(beacon_dict['location']['y'], 67)
-        self.assertEqual(beacon_dict['location']['z'], 1)
-        self.assertEqual(beacon_dict['name'], "Test beacon")
+        self.assertEqual(group_dict['id'], "1234")
+        self.assertTrue("15685156" in group_dict['users'])
+        self.assertEqual(group_dict['name'], "Test group")
 
         with self.app_context:
-            Beacon.remove(beacon_dict['id'])
+            Group.remove(group_dict['id'])
+
+    def test_add_member_to_group(self):
+        group = self._sample_group()
+
+        with self.app_context:
+            group.save()
+            Group.add_member(group.id, "1234")
+
+            group_test = Group.get_by_id(group.id)
+            self.assertTrue("1234" in group_test.users)
+
+            Group.remove(group.id)
 
 
 if __name__ == '__main__':

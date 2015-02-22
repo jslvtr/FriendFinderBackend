@@ -1,5 +1,5 @@
 from flask import Flask, request, abort, g
-from src.db.models import Beacon, User
+from src.db.models import Group, User
 from src.db.database import Database
 import datetime
 
@@ -14,11 +14,6 @@ def log(to_write):
 @app.before_request
 def init_db():
     g.database = Database('mongodb://admin:admin@ds063879.mongolab.com:63879/heroku_app34205970')
-
-
-@app.route('/')
-def hello():
-    return 'hello'
 
 
 @app.route('/login/twitter', methods=['POST'])
@@ -53,17 +48,34 @@ def login_facebook():
     user.save()
 
 
-@app.route('/beacons/add', methods=['POST'])
-def add_beacon():
-    beacon_id = request.json.get('id')
-    room_id = request.json.get('room_id')
-    name = request.json.get('name')
-    location = request.json.get('location')
+@app.route('/user/location', methods=['POST'])
+def update_user_location():
+    lat = request.json.get('lat')
+    lon = request.json.get('lon')
+    user_id = request.json.get('id')
 
-    if not(beacon_id and room_id and name and location):
-        abort(400)
+    User.update(user_id, lat, lon)
 
-    return Beacon.create()
+
+# @app.route('/group/<group_id>/locations')
+# def get_friend_locations(group_id):
+#     group = Group.get_by_id(group_id)
+#
+#     ret = []
+#
+#     for friend_id in group.users:
+#         ret.extend([User.get_by_id(friend_id).location])
+#
+#     return ret
+
+
+@app.route('/group/<group_id>/add')
+def add_member_to_group(group_id):
+
+    user_id = request.json.get('user_id')
+
+    group = Group.get_by_id(group_id)
+    Group.add_member(group.id, user_id)
 
 
 if __name__ == '__main__':
