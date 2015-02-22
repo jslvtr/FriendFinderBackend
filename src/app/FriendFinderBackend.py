@@ -352,6 +352,7 @@ def create_group():
 @app.route('/confirm/<token>', methods=['GET'])
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
 def confirm(token):
+    log("Starting confirmation...")
     invite = Invite.get_by_token(token)
     log("Invite ID: {}".format(invite.id))
     inviter = User.get_by_id(invite.inviter_id)

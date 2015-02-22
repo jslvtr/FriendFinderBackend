@@ -342,6 +342,16 @@ class Invite(ModelBase, FieldManagerMixin):
 
         return cls(data)
 
+    @classmethod
+    def activate(cls, token, password):
+        invite = cls.get_by_token(token)
+        email = invite.email
+        user = User.register(email, password)
+        user.save()
+        Group.add_member(invite.inviter_id, user.id)
+
+        Invite.mark_complete(email)
+
     def save(self):
         data = SON()
         data.update(self._data)
@@ -404,13 +414,3 @@ class Invite(ModelBase, FieldManagerMixin):
             print "Successfully sent email"
         except smtplib.SMTPException:
             print "Error: unable to send email"
-
-    @classmethod
-    def activate(cls, token, password):
-        invite = cls.get_by_token(token)
-        email = invite.email
-        user = User.register(email, password)
-        user.save()
-        Group.add_member(invite.inviter_id, user.id)
-
-        Invite.mark_complete(email)
