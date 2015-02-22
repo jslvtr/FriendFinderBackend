@@ -384,4 +384,4 @@ def activate_invite(token):
     return jsonify(response_data), response_data['status_code']
 
 if __name__ == '__main__':
-    app.run(port=9876, debug=True)
+    app.run()
