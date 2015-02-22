@@ -210,10 +210,11 @@ class User(ModelBase, FieldManagerMixin):
         Field('username'),
         Field('name'),
         Field('email'),
+        Field('password', visible=False),
         Field('providers', default=[]),
         Field('access_token'),
         Field('last_request'),
-        Field('location'),
+        Field('location', default=[]),
         Field('joined_date')
     ]
 
@@ -246,16 +247,20 @@ class User(ModelBase, FieldManagerMixin):
         return cls(data) if data else None
 
     @classmethod
-    def create(cls, username, provider_name, access_token, access_secret, user_id=None, email=None, location=None):
-        data = {'id': user_id if user_id is not None else cls.generate_id(),
-                'providers': [Provider.create(provider_name, access_token, access_secret).to_dict()],
-                'access_token': cls.generate_access_token(),
+    def create(cls, email, password):
+        data = {'id': cls.generate_id(),
+                'access_key': cls.generate_access_key(),
                 'joined_date': datetime.utcnow(),
-                'username': username,
                 'email': email,
-                'location': location}
+                'password': generate_password_hash(password)}
 
         return cls(data)
+
+    @staticmethod
+    def generate_access_key():
+        random_bytes = [chr(random.randrange(256)) for i in range(16)]
+        random_bytes = "".join(random_bytes)
+        return sha1(random_bytes).hexdigest()
 
     @classmethod
     def get_by_provider(cls, provider, access_token):
@@ -294,7 +299,7 @@ class User(ModelBase, FieldManagerMixin):
     def update_location(cls, user_id, lat, lon):
         if lat is None or lon is None:
             raise cls.CalledEmptyUpdate
-        cls.db().update({'user_id': user_id}, {'$set': {'location': {'lat': lat, 'lon': lon}}})
+        cls.db().update({'id': user_id}, {'$set': {'location': [lat, lon]}})
 
     def save(self):
         data = SON()

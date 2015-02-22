@@ -16,35 +16,32 @@ def init_db():
     g.database = Database('mongodb://admin:admin@ds063879.mongolab.com:63879/heroku_app34205970')
 
 
-@app.route('/login/twitter', methods=['POST'])
-def login_twitter():
-
-    log("Logging in with Twitter.")
-
-    username = request.json.get('username')
-    user_id = request.json.get('user_id')
-    provider_name = request.json.get('provider_name')
-    access_token = request.json.get('access_token')
-    access_secret = request.json.get('access_secret')
-
-    log("Twitter username: {}\nID: {}.".format(username,
-                                               user_id))
-
-    user = User.create(username, provider_name, access_token, access_secret, user_id=user_id)
-    log("Created Twitter user.")
-    user.save()
-    log("Saved Twitter user to database.")
+# @app.route('/login/twitter', methods=['POST'])
+# def login_twitter():
+#
+#     log("Logging in with Twitter.")
+#
+#     username = request.json.get('username')
+#     user_id = request.json.get('user_id')
+#     provider_name = request.json.get('provider_name')
+#     access_token = request.json.get('access_token')
+#     access_secret = request.json.get('access_secret')
+#
+#     log("Twitter username: {}\nID: {}.".format(username,
+#                                                user_id))
+#
+#     user = User.create(email, password)
+#     log("Created Twitter user.")
+#     user.save()
+#     log("Saved Twitter user to database.")
 
 
 @app.route('/login/facebook', methods=['POST'])
 def login_facebook():
     email = request.json.get('email')
-    username = request.json.get('name')
-    provider_name = request.json.get('provider_name')
-    access_token = request.json.get('access_token')
-    access_secret = request.json.get('access_secret')
+    password = request.json.get('password')
 
-    user = User.create(username, provider_name, access_token, access_secret, email=email)
+    user = User.create(email, password)
     user.save()
 
 
@@ -69,13 +66,24 @@ def update_user_location():
 #     return ret
 
 
-@app.route('/group/<group_id>/add')
+@app.route('/group/<group_id>/add', methods=['POST'])
 def add_member_to_group(group_id):
 
     user_id = request.json.get('user_id')
 
     group = Group.get_by_id(group_id)
     Group.add_member(group.id, user_id)
+
+@app.route('/group', methods=['POST'])
+def create_group():
+    group_id = request.json.get('group_id')
+    name = request.json.get('name')
+
+    group = Group.create(group_id=group_id,
+                         creator=g.user.id,
+                         name=name)
+
+    group.save()
 
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
 from flask import g
 from src.db.database import Database
+from werkzeug.security import check_password_hash
 
 __author__ = 'jslvtr'
 
@@ -35,13 +36,10 @@ class ModelsTest(unittest.TestCase):
         self.assertEqual(twitter_dict['access_token'], self.stuart_twitter_access_token)
 
     def test_create_user(self):
-        user_dict = self._sample_user().to_dict()
+        user = self._sample_user()
 
-        self.assertEqual(user_dict['username'], "jslvtr")
-        self.assertEqual(user_dict['id'], "15685156")
-        self.assertEqual(user_dict['providers'][0].to_dict(),
-                         Provider.create("Twitter", self.stuart_twitter_access_token,
-                                         self.stuart_twitter_access_secret).to_dict())
+        self.assertEqual(user.email, "jslvtr@gmail.com")
+        self.assertTrue(check_password_hash(user.password, "jose"))
 
     def test_save_user(self):
         user = self._sample_user()
@@ -49,26 +47,33 @@ class ModelsTest(unittest.TestCase):
             user.save()
             User.remove(user.id)
 
-    def test_find_twitter_user(self):
+    def test_update_user_location(self):
         user = self._sample_user()
+
         with self.app_context:
             user.save()
-            self.assertEqual(User.get_by_provider("Twitter", self.stuart_twitter_access_token).id,
-                             self._sample_user().id)
-            self.assertEqual(User.get_by_provider("Twitter", self.stuart_twitter_access_token).username,
-                             self._sample_user().username)
-            self.assertEqual(User.get_by_provider("Twitter", self.stuart_twitter_access_token).email,
-                             self._sample_user().email)
-            self.assertEqual(User.get_by_provider("Twitter", self.stuart_twitter_access_token).providers,
-                             self._sample_user().providers)
-            User.remove(user.id)
+            User.update_location(user.id, 57.062, 13.673)
+            user_test = User.get_by_id(user.id)
+            self.assertEqual(user_test.location[0], 57.062)
+            self.assertEqual(user_test.location[1], 13.673)
+
+    # def test_find_twitter_user(self):
+    #     user = self._sample_user()
+    #     with self.app_context:
+    #         user.save()
+    #         self.assertEqual(User.get_by_provider("Twitter", self.stuart_twitter_access_token).id,
+    #                          self._sample_user().id)
+    #         self.assertEqual(User.get_by_provider("Twitter", self.stuart_twitter_access_token).username,
+    #                          self._sample_user().username)
+    #         self.assertEqual(User.get_by_provider("Twitter", self.stuart_twitter_access_token).email,
+    #                          self._sample_user().email)
+    #         self.assertEqual(User.get_by_provider("Twitter", self.stuart_twitter_access_token).providers,
+    #                          self._sample_user().providers)
+    #         User.remove(user.id)
 
     def _sample_user(self):
-        user = User.create(username="jslvtr",
-                           user_id="15685156",
-                           provider_name="Twitter",
-                           access_token=self.stuart_twitter_access_token,
-                           access_secret=self.stuart_twitter_access_secret)
+        user = User.create(email="jslvtr@gmail.com",
+                           password="jose") # pass = jose
         return user
 
     def _sample_group(self):
@@ -81,7 +86,6 @@ class ModelsTest(unittest.TestCase):
         group_dict = self._sample_group().to_dict()
 
         self.assertEqual(group_dict['id'], "1234")
-        self.assertTrue("15685156" in group_dict['users'])
         self.assertEqual(group_dict['name'], "Test group")
 
         with self.app_context:
