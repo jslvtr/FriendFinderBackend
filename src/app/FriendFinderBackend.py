@@ -299,6 +299,7 @@ def add_member_to_group(group_id):
                 Group.add_member(group_id, user.id)
             else:
                 invite = Invite.create(user_email)
+                invite.save()
                 invite.send()
     else:
         if user_id != "" and user_id is not None:
@@ -355,4 +356,4 @@ def activate_invite(token):
     Invite.activate(token, password)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=9876, debug=True)
