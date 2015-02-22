@@ -20,17 +20,17 @@ cors = CORS(app)
 app.config['CORS_HEADERS'] = ['Content-Type', 'Authorization', 'Accept']
 path = os.path.dirname(os.path.abspath(sys.argv[0]))
 
-for root, dirs, files in os.walk("templates", topdown=True):
-    for name in files:
-        print(os.path.join(root, name))
-    for name in dirs:
-        print(os.path.join(root, name))
-
-my_loader = jinja2.ChoiceLoader([
-    app.jinja_loader,
-    jinja2.FileSystemLoader(os.path.join(path, 'templates/')),
-])
-app.jinja_loader = my_loader
+# for root, dirs, files in os.walk("templates", topdown=True):
+#     for name in files:
+#         print(os.path.join(root, name))
+#     for name in dirs:
+#         print(os.path.join(root, name))
+#
+# my_loader = jinja2.ChoiceLoader([
+#     app.jinja_loader,
+#     jinja2.FileSystemLoader(os.path.join(path, 'templates/')),
+# ])
+# app.jinja_loader = my_loader
 
 
 def log(to_write):
