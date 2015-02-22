@@ -20,7 +20,7 @@ cors = CORS(app)
 app.config['CORS_HEADERS'] = ['Content-Type', 'Authorization', 'Accept']
 path = os.path.dirname(os.path.abspath(sys.argv[0]))
 
-for root, dirs, files in os.walk("../../app", topdown=True):
+for root, dirs, files in os.walk("../../app/templates", topdown=True):
     for name in files:
         print(os.path.join(root, name))
     for name in dirs:
