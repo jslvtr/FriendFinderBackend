@@ -28,7 +28,7 @@ for root, dirs, files in os.walk("../..", topdown=True):
 
 my_loader = jinja2.ChoiceLoader([
     app.jinja_loader,
-    jinja2.FileSystemLoader(os.path.join(path, '../../../../../templates/')),
+    jinja2.FileSystemLoader(os.path.join(path, '../../app/templates/')),
 ])
 app.jinja_loader = my_loader
 
