@@ -240,7 +240,7 @@ def login_facebook():
 def update_user_location():
     lat = request.json.get('lat')
     lon = request.json.get('lon')
-    user_id = request.json.get('id')
+    user_id = g.user.id
 
     User.update(user_id, lat, lon)
 

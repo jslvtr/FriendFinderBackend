@@ -55,7 +55,6 @@ class ModelsTest(unittest.TestCase):
 
             User.remove(user.id)
 
-
     def test_save_user(self):
         user = self._sample_user()
         with self.app_context:
@@ -74,6 +73,9 @@ class ModelsTest(unittest.TestCase):
             self.assertEqual(user_test.location[0], 57.062)
             self.assertEqual(user_test.location[1], 13.673)
             User.remove(user.id)
+
+    def test_get_groups_of_user(self):
+        pass
 
     # def test_find_twitter_user(self):
     #     user = self._sample_user()
