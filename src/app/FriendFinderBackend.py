@@ -63,7 +63,7 @@ def check_authorization(authorization):
             return False
 
         try:
-            g.user = User.get_by_access_key(access_key)
+            g.user = User.get_by_access_token(access_key)
         except User.DoesNotExist:
             return False
 
