@@ -371,9 +371,10 @@ def confirm(token):
                                inviter_email=inviter.email), 200
     except Exception:
         type, ex, trace = sys.exc_info()
+        loggerObject.error(path + " | " + os.path.join(path, '../../templates/'))
         loggerObject.error(type)
         loggerObject.error(ex.message)
-        loggerObject.error(trace)
+        loggerObject.error(trace.print_stack())
         response_data = create_response_error(
             "InternalServerError",
             "The server could not display the template",
