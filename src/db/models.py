@@ -359,9 +359,10 @@ class Invite(ModelBase, FieldManagerMixin):
             cls.db().update({'email': model_email}, {'$set': {'pending': False}})
 
     def send(self):
-        smtp_user = "jslvtr@gmail.com"
-        smtp_server = "localhost"
-        smtp_port = 25
+        smtp_user = "friendfinderbeacons@gmail.com"
+        smtp_password = "stackshack"
+        smtp_server = "smtp.gmail.com"
+        smtp_port = 587
         receiver = self.email
 
         msg = MIMEMultipart('alternative')
@@ -378,7 +379,11 @@ class Invite(ModelBase, FieldManagerMixin):
             smtpObj = smtplib.SMTP(smtp_server, smtp_port)
 
             # Send EHLO or HELO greeting so server recognizes us
-            smtpObj.ehlo_or_helo_if_needed()
+            smtpObj.ehlo()
+            smtpObj.starttls()
+            smtpObj.ehlo()
+            smtpObj.login(smtp_user, smtp_password)
+
             msg.attach(MIMEText(message, 'html'))
 
             # Log-in to the server with the config sender/password

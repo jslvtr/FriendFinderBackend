@@ -354,4 +354,4 @@ def activate_invite(token):
     Invite.activate(token, password)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=9876, debug=True)
