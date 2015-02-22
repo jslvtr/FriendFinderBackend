@@ -301,11 +301,11 @@ def add_member_to_group(group_id):
 
     if user_email != "" and user_email is not None and email_is_valid(user_email):
             user = User.get_by_email(user_email)
-            log("Adding {} to group {}".format(user_email, group_id))
+            log("Email: Adding {} to group {}".format(user_email, group_id))
             Group.add_member(group_id, user.id)
     else:
         if user_id != "" and user_id is not None:
-            log("Adding {} to group {}".format(user_id, group_id))
+            log("ID: Adding {} to group {}".format(user_id, group_id))
             Group.add_member(group_id, user_id)
         else:
             response_data = create_response_error(
