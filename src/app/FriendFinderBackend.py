@@ -26,11 +26,11 @@ for root, dirs, files in os.walk("../../app/templates", topdown=True):
     for name in dirs:
         print(os.path.join(root, name))
 
-my_loader = jinja2.ChoiceLoader([
-    app.jinja_loader,
-    jinja2.FileSystemLoader(os.path.join(path, '../../app/templates/')),
-])
-app.jinja_loader = my_loader
+# my_loader = jinja2.ChoiceLoader([
+#     app.jinja_loader,
+#     jinja2.FileSystemLoader(os.path.join(path, '../../app/templates/')),
+# ])
+# app.jinja_loader = my_loader
 
 
 def log(to_write):
@@ -372,7 +372,7 @@ def confirm(token):
     inviter = User.get_by_id(invite.inviter_id)
     log("Invited by: {}".format(inviter.email))
     try:
-        return render_template("invite.html",
+        return render_template(os.path.join(path, '../../app/templates/invite.html'),
                                email=invite.email,
                                token=token,
                                inviter_email=inviter.email), 200
