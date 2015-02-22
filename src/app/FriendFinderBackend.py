@@ -287,17 +287,10 @@ def get_friend_locations(group_id):
 @login_required
 def add_member_to_group(group_id):
     log("Adding member to group...")
-    user_id = None
-    user_email = None
-    try:
-        user_id = request.json.get('user_id')
-    except Exception:
-        log("Didn't receive a User ID to add, so trying to use e-mail instead...")
+    user_id = request.json.get('user_id')
+    user_email = request.json.get('email')
 
-    try:
-        user_email = request.json.get('email')
-    except Exception:
-        log("Didn't receive a User Email to add, so trying to use ID instead...")
+    log("Going to check e-mail and user id...")
 
     if user_email != "" and user_email is not None and email_is_valid(user_email):
             user = User.get_by_email(user_email)
