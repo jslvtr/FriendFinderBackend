@@ -288,27 +288,32 @@ def get_friend_locations(group_id):
 def add_member_to_group(group_id):
     log("Adding member to group...")
     user_id = None
+    user_email = None
     try:
         user_id = request.json.get('user_id')
     except Exception:
         log("Didn't receive a User ID to add, so trying to use e-mail instead...")
 
-    if user_id is None or user_id == "":
+    try:
         user_email = request.json.get('email')
-        if user_email is None:
-            response_data = create_response_error(
-                'InternalServerError',
-                'The server could not fulfill the request to add user',
-                500
-            )
-            return jsonify(response_data), response_data['status_code']
-        else:
+    except Exception:
+        log("Didn't receive a User Email to add, so trying to use ID instead...")
+
+    if user_email != "" and user_email is not None and email_is_valid(user_email):
             user = User.get_by_email(user_email)
             log("Adding {} to group {}".format(user_email, group_id))
             Group.add_member(group_id, user.id)
     else:
-        log("Adding {} to group {}".format(user_id, group_id))
-        Group.add_member(group_id, user_id)
+        if user_id != "" and user_id is not None:
+            log("Adding {} to group {}".format(user_id, group_id))
+            Group.add_member(group_id, user_id)
+        else:
+            response_data = create_response_error(
+                "InternalServerError",
+                "The server could not fulfil your request",
+                500
+            )
+            return jsonify(response_data), response_data['status_code']
 
     response_data = create_response_data(
         Group.get_by_id(group_id).to_dict(),
