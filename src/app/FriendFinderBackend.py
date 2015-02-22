@@ -353,7 +353,9 @@ def create_group():
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
 def confirm(token):
     invite = Invite.get_by_token(token)
+    log("Invite ID: {}".format(invite.id))
     inviter = User.get_by_id(invite.inviter_id)
+    log("Invited by: {}".format(inviter.email))
     return render_template("invite.html",
                            email=invite.email,
                            token=token,
