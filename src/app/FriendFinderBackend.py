@@ -21,7 +21,7 @@ app.config['CORS_HEADERS'] = ['Content-Type', 'Authorization', 'Accept']
 path = os.path.dirname(os.path.abspath(sys.argv[0]))
 my_loader = jinja2.ChoiceLoader([
     app.jinja_loader,
-    jinja2.FileSystemLoader(os.path.join(path, '../../templates/')),
+    jinja2.FileSystemLoader(os.path.join(path, '../templates/')),
 ])
 app.jinja_loader = my_loader
 
@@ -365,7 +365,7 @@ def confirm(token):
     inviter = User.get_by_id(invite.inviter_id)
     log("Invited by: {}".format(inviter.email))
     try:
-        return render_template("../templates/invite.html",
+        return render_template("invite.html",
                                email=invite.email,
                                token=token,
                                inviter_email=inviter.email), 200
