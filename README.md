@@ -37,7 +37,6 @@ Please send me:
 
 ```
 {
-    "email": <valid_email>,
     "lat": <float>,
     "lon": <float>
 }
