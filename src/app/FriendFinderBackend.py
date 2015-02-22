@@ -261,11 +261,18 @@ def get_friend_locations(group_id):
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
 @login_required
 def add_member_to_group(group_id):
-
+    group = Group.get_by_id(group_id)
     user_id = request.json.get('user_id')
 
-    group = Group.get_by_id(group_id)
-    Group.add_member(group.id, user_id)
+    if user_id is None:
+        user_email = request.json.get('email')
+        if user_email is None:
+            raise Exception
+        else:
+            user = User.get_by_email(user_email)
+            Group.add_member(group.id, user.id)
+    else:
+        Group.add_member(group.id, user_id)
 
 @app.route('/groups', methods=['POST'])
 @cross_origin(headers=['Content-Type', 'Authorization', 'Accept'])
