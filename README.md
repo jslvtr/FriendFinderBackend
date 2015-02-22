@@ -7,6 +7,7 @@ Backend in Python and Flask for FriendFinder
 
 #### POST `/users/register`
 
+This registers you and logs you in. It will return an `access_token` which you need in further communication.
 Please send me:
 
 ```
@@ -18,6 +19,7 @@ Please send me:
 
 #### POST `/users/login`
 
+This logs you in. It will return an `access_token` which you need in further communication.
 Please send me:
 
 ```
@@ -29,6 +31,8 @@ Please send me:
 
 #### POST `/users/location/`
 
+Needs to be logged in. Send as `Authorization header`: `FFINDER <access_token>`.
+This updates the current user's location with the data in the JSON payload.
 Please send me:
 
 ```
@@ -45,6 +49,8 @@ Instead of `email` you can send `id`.
 
 #### GET `/groups/<group_id>/locations`
 
+Needs to be logged in. Send as `Authorization header`: `FFINDER <access_token>`.
+This returns the users in a group and their locations.
 You will get:
 
 ```
@@ -63,6 +69,8 @@ You will get:
 
 #### POST `/groups/<group_id>/add`
 
+Needs to be logged in. Send as `Authorization header`: `FFINDER <access_token>`.
+This lets you add a user with a given e-mail address to the group.
 Send me:
 
 ```
@@ -75,6 +83,7 @@ You can send me a `user_id` instead of `email`.
 
 #### POST `/groups`
 
+Needs to be logged in. Send as `Authorization header`: `FFINDER <access_token>`.
 This creates a new group.
 Send me:
 
@@ -87,6 +96,7 @@ Send me:
 
 #### GET `/groups`
 
+Needs to be logged in. Send as `Authorization header`: `FFINDER <access_token>`.
 This gets the current user's groups
 
 You'll receive:
