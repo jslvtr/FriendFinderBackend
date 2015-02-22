@@ -52,10 +52,13 @@ class ModelsTest(unittest.TestCase):
 
         with self.app_context:
             user.save()
+
             User.update_location(user.id, 57.062, 13.673)
+
             user_test = User.get_by_id(user.id)
             self.assertEqual(user_test.location[0], 57.062)
             self.assertEqual(user_test.location[1], 13.673)
+            User.remove(user.id)
 
     # def test_find_twitter_user(self):
     #     user = self._sample_user()
@@ -73,35 +76,65 @@ class ModelsTest(unittest.TestCase):
 
     def _sample_user(self):
         user = User.create(email="jslvtr@gmail.com",
-                           password="jose") # pass = jose
+                           password="jose")
         return user
 
-    def _sample_group(self):
+    def _sample_group(self, creator):
         group = Group.create(group_id="1234",
-                             creator=self._sample_user().id,
+                             creator=creator.id,
                              name="Test group")
         return group
 
     def test_create_group(self):
-        group_dict = self._sample_group().to_dict()
+        group_dict = self._sample_group(self._sample_user()).to_dict()
 
         self.assertEqual(group_dict['id'], "1234")
         self.assertEqual(group_dict['name'], "Test group")
 
-        with self.app_context:
-            Group.remove(group_dict['id'])
-
     def test_add_member_to_group(self):
-        group = self._sample_group()
+        user = self._sample_user()
+        group = self._sample_group(user)
 
         with self.app_context:
+            Group.remove(group.id)
+            User.remove(user.id)
+
+            user.save()
             group.save()
+
             Group.add_member(group.id, "1234")
 
             group_test = Group.get_by_id(group.id)
-            self.assertTrue("1234" in group_test.users)
 
             Group.remove(group.id)
+            User.remove(user.id)
+
+            self.assertTrue("1234" in group_test.users)
+
+    def test_get_group_members(self):
+        user = self._sample_user()
+        group = self._sample_group(user)
+
+        with self.app_context:
+
+            Group.remove(group.id)
+            User.remove(user.id)
+
+            user.save()
+            group.save()
+
+            ret = []
+
+            for friend_id in group.users:
+                friend = User.get_by_id(friend_id)
+                ret.extend([{'friend_id': friend_id,
+                             'name': friend.email,
+                             'location': friend.location}])
+
+            self.assertGreater(len(ret), 0)
+
+            Group.remove(group.id)
+            User.remove(user.id)
 
 
 if __name__ == '__main__':

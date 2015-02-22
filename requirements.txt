@@ -10,3 +10,4 @@ requests-oauthlib==0.4.2
 wsgiref==0.1.2
 pymongo
 gunicorn
+flask-cors==1.9.0
